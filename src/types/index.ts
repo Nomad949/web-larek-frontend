@@ -13,20 +13,20 @@ interface IUserData {
     email: string;
     phone: number;
     checkValidation(data: Record<keyof TFormValidation, string>): boolean;
+    setUserData(userData: IUserData): void;
+    getUserData(): void;
 }
 
 interface IBasket {
     cards: TBasketItem[];
-    cardIndex: number | null;
-    counter: number;
-    totalPrice: number | null;
     addCard(card: ICard): void;
-    updateBasket(card: ICard): void
     deleteCard(cardId: string): void;
+    getCount(): number;
+    getTotalPrice(): number
 }
 
 interface ICardsData {
-    container: ICard[];
+    cards: ICard[];
     preview: string | null;
     getCard(cardId: string): ICard;
 }
