@@ -1,4 +1,4 @@
-interface ICard {
+export interface ICard {
     id: string;
     description: string;
     image: string;
@@ -7,32 +7,41 @@ interface ICard {
     price: number | null;
 }
 
-interface IUserData {
+export interface IUserData {
     payment: TPayment;
     address: string;
     email: string;
     phone: number;
-    checkValidation(data: Record<keyof TFormValidation, string>): boolean;
+    orderValidation(data: Record<keyof TFormValidation, string>): void;
     setUserData(userData: IUserData): void;
     getUserData(): void;
 }
 
-interface IBasket {
-    cards: TBasketItem[];
+export interface IBasket {
+    _cards: TBasketItem[];
     addCard(card: ICard): void;
     deleteCard(cardId: string): void;
     getCount(): number;
-    getTotalPrice(): number
+    getTotalPrice(): number | null;
+    inBasket(cardId: string): boolean;
 }
 
-interface ICardsData {
-    cards: ICard[];
-    preview: string | null;
+export interface ICardsData {
+    _cards: ICard[];
+    _preview: string | null;
     getCard(cardId: string): ICard;
 }
 
-type TBasketItem = Pick<ICard, 'title' | 'price'>
+export interface IApi {
+    baseUrl: string;
+    get<T>(uri:string): Promise<T>;
+    post<T>(uri: string, data: object, method?: ApiPostMethods): Promise<T>;
+}
 
-type TPayment = 'online' | 'personally'
+export type TBasketItem = Pick<ICard, 'id' | 'title' | 'price'>
 
-type TFormValidation = Pick<IUserData, 'address' | 'email' | 'phone'>
+export type TPayment = 'online' | 'personally'
+
+export type TFormValidation = Pick<IUserData, 'address' | 'email' | 'phone'>
+
+export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE' | 'PATCH'
