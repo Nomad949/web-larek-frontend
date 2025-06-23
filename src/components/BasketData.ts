@@ -1,26 +1,21 @@
-import { IBasket, ICard, TBasketItem } from "../types";
+import { IBasket, ICard } from "../types";
 import { IEvents } from "./base/events";
 
-export class Basket implements IBasket {
-     _cards: TBasketItem[];
+export class BasketData implements IBasket {
+    protected _cards: ICard[];
     protected events: IEvents;
     
     constructor(events: IEvents) {
+        this._cards = [];
         this.events = events;
     }
     
     addCard(card: ICard) {
-        if(this.inBasket(card.id)) {
-            alert('Нельзя добавить больше одной штуки!');
-            return;
-        }
         this._cards.push(card);
-        this.events.emit('cards:changed');
     };
 
     deleteCard(cardId: string) {
         this._cards = this._cards.filter((card) => card.id !== cardId);
-        this.events.emit('cards:changed');
     };
 
     getCount() {
@@ -33,9 +28,13 @@ export class Basket implements IBasket {
 
     inBasket(cardId: string) {
         return this._cards.some((card) => card.id === cardId);
-    }
+    };
+
+    clearBasket() {
+        this._cards = [];
+    };
 
     get cards() {
         return this._cards;
-    }
+    };
 }
