@@ -12,10 +12,12 @@ export class BasketData implements IBasket {
     
     addCard(card: ICard) {
         this._cards.push(card);
+        this.events.emit('basket:changed', card);
     };
 
     deleteCard(cardId: string) {
         this._cards = this._cards.filter((card) => card.id !== cardId);
+        this.events.emit('basket:changed');
     };
 
     getCount() {
@@ -32,6 +34,7 @@ export class BasketData implements IBasket {
 
     clearBasket() {
         this._cards = [];
+        this.events.emit('basket:changed');
     };
 
     get cards() {

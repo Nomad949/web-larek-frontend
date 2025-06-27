@@ -53,25 +53,20 @@ function openBasket() {
 };
 
 
-//Запрос карточек с серва 
+//Запрос карточек с серва и отрисовка
 api.getCatalog()
     .then((cards) =>{
         cardsData.cards = cards;
-        events.emit('cards:loaded');
+        const cardsArray = cardsData.cards.map((card) => {
+            const cardCatalog = new CardCatalog(cloneTemplate(cardCatalogTemp), events);
+            return cardCatalog.render(card);
+        });
+        appView.render({catalog: cardsArray});
+
     })
     .catch(err => {
         console.log('Ошибка получения товаров: ', err);
     });
-
-//отрисовываем карточки с сервера на главной странице
- events.on('cards:loaded', () => {
-    const cardsArray = cardsData.cards.map((card) => {
-        const cardCatalog = new CardCatalog(cloneTemplate(cardCatalogTemp), events);
-        return cardCatalog.render(card);
-    })
-
-    appView.render({catalog: cardsArray});
-});
 
 
 //открытие карточки в превью
@@ -84,8 +79,8 @@ events.on('card:select', ({cardId}: {cardId: string})=> {
 
 //открытие корзины с главной страницы
 events.on('basket:open', () => {
-    modal.open();
     openBasket();
+    modal.open();
 });
 
 
@@ -93,15 +88,17 @@ events.on('basket:open', () => {
 events.on('card:add', ({cardId}: {cardId: string}) => {
     const card = cardsData.getCard(cardId);
     basketData.addCard(card);
-    appView.countInBasket = basketData.getCount();
     modal.close();
 });
 
+//изменения в корзине
+events.on('basket:changed', () => {
+    appView.countInBasket = basketData.getCount();
+})
 
 //обработчик удаления карточки из корзины
 events.on('card:delete', ({cardId}: {cardId: string}) => {
     basketData.deleteCard(cardId);
-    appView.countInBasket = basketData.getCount();
     openBasket();
 });
 
@@ -116,7 +113,6 @@ events.on('modal:scrolled', ({isLocked}: {isLocked: boolean}) => {
 events.on('basket:to_Order', () => {
     modal.content = orderForm.render();
     userData.orderValidation();
-
 });
 
 
@@ -159,14 +155,12 @@ events.on('contacts:submit', () => {
         .then(data => {
             successView.totalPrice = data.total;
             modal.content = successView.render();
+            userData.clearData();
+            basketData.clearBasket();
         })
         .catch((err) => {
             console.log('Сбой отправки заказа: ', err);
-        });
-    
-    userData.clearData();
-    basketData.clearBasket();
-    appView.countInBasket = basketData.getCount();
+        }); 
 });
 
 

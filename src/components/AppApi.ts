@@ -8,7 +8,8 @@ export class AppApi {
     }
 
     getCatalog(): Promise<ICard[]> {
-        return this._baseApi.get<{total:number, items:ICard[]}>('/product').then((cards) => cards.items);
+        return this._baseApi.get<{total:number, items:ICard[]}>('/product')
+            .then((cards) => cards.items)
     };
 
     postUserData(cards: ICard[], data: IUserData, orderPrice: number): Promise<IUserResponse> {

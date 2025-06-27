@@ -3,7 +3,6 @@ import { FormView } from "./base/FormView";
 import { IEvents } from "./base/events";
 
 export class OrderForm extends FormView<IUserData> {
-    protected _paymentType: TPayment;
     protected _address: HTMLInputElement;
     protected _cashButton: HTMLButtonElement;
     protected _cardButton: HTMLButtonElement;
@@ -16,23 +15,18 @@ export class OrderForm extends FormView<IUserData> {
         this._cardButton = this.container.querySelector('button[name="card"]');
 
         this._cashButton.addEventListener('click', () => {
-            this._paymentType = 'cash';
-            this._cardButton.classList.remove('button_alt-active');
-            this._cashButton.classList.add('button_alt-active');
-            this.events.emit(`${this.formName}:change`, {field: 'payment', value: this._paymentType})
+            this.events.emit(`${this.formName}:change`, {field: 'payment', value: 'cash'});
         });
 
         this._cardButton.addEventListener('click', () => {
-            this._paymentType = 'card';
-            this._cardButton.classList.add('button_alt-active');
-            this._cashButton.classList.remove('button_alt-active');
-            this.events.emit(`${this.formName}:change`, {field: 'payment', value: this._paymentType});
+            this.events.emit(`${this.formName}:change`, {field: 'payment', value: 'card'});
         });
     }
 
-    set payment(value: TPayment) {
-        this._paymentType = value;
-    };
+    set payment (value: string) {
+        this._cardButton.classList.toggle('button_alt-active', value === 'card');
+        this._cashButton.classList.toggle('button_alt-active', value === 'cash');
+    }
 
     set address(value: string) {
         this._address.value = value;
