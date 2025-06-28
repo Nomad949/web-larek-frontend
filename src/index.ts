@@ -74,6 +74,7 @@ events.on('card:select', ({cardId}: {cardId: string})=> {
 
 //открытие корзины с главной страницы
 events.on('basket:open', () => {
+    modal.content = basketView.render();
     modal.open();
 });
 
