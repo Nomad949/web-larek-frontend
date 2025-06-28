@@ -11,13 +11,16 @@ export class CardsData implements ICardsData {
 
     set cards(cards: ICard[]) {
         this._cards = cards;
+        this.events.emit('cards:loaded')
     };
 
     get cards() {
         return this._cards;
+        
     };
 
     getCard(cardId: string) {
         return this._cards.find((item) => item.id === cardId)
+        
     };
 }

@@ -44,29 +44,24 @@ const basketData = new BasketData(events);
 const userData = new UserData(events);
 
 
-function openBasket() {
-    const cards = basketData.cards.map((card, index) => {
-        const cardBasket = new CardBasket(cloneTemplate(cardBasketTemp), events);
-        return cardBasket.render({...card, cardIndex: index + 1});
-    });
-    modal.content = basketView.render({cards: cards, totalPrice: basketData.getTotalPrice()});
-};
-
-
-//Запрос карточек с серва и отрисовка
+//запрос на сервер
 api.getCatalog()
     .then((cards) =>{
         cardsData.cards = cards;
-        const cardsArray = cardsData.cards.map((card) => {
-            const cardCatalog = new CardCatalog(cloneTemplate(cardCatalogTemp), events);
-            return cardCatalog.render(card);
-        });
-        appView.render({catalog: cardsArray});
-
     })
     .catch(err => {
         console.log('Ошибка получения товаров: ', err);
     });
+
+
+//отрисовываем карточки, пришедшие с сервера
+events.on('cards:loaded', () => {
+    const cardsArray = cardsData.cards.map((card) => {
+        const cardCatalog = new CardCatalog(cloneTemplate(cardCatalogTemp), events);
+        return cardCatalog.render(card);
+    });
+    appView.render({catalog: cardsArray});
+}) 
 
 
 //открытие карточки в превью
@@ -79,7 +74,6 @@ events.on('card:select', ({cardId}: {cardId: string})=> {
 
 //открытие корзины с главной страницы
 events.on('basket:open', () => {
-    openBasket();
     modal.open();
 });
 
@@ -93,13 +87,17 @@ events.on('card:add', ({cardId}: {cardId: string}) => {
 
 //изменения в корзине
 events.on('basket:changed', () => {
+    const cards = basketData.cards.map((card, index) => {
+        const cardBasket = new CardBasket(cloneTemplate(cardBasketTemp), events);
+        return cardBasket.render({...card, cardIndex: index + 1});
+    });
     appView.countInBasket = basketData.getCount();
+    modal.content = basketView.render({cards: cards, totalPrice: basketData.getTotalPrice()});
 })
 
 //обработчик удаления карточки из корзины
 events.on('card:delete', ({cardId}: {cardId: string}) => {
     basketData.deleteCard(cardId);
-    openBasket();
 });
 
 
@@ -153,10 +151,10 @@ events.on('contacts:data_changed', (data: IUserData & IFormView) => {
 events.on('contacts:submit', () => {
 	api.postUserData(basketData.cards, userData.getUserData(), basketData.getTotalPrice())
         .then(data => {
-            successView.totalPrice = data.total;
-            modal.content = successView.render();
             userData.clearData();
             basketData.clearBasket();
+            successView.totalPrice = data.total;
+            modal.content = successView.render();
         })
         .catch((err) => {
             console.log('Сбой отправки заказа: ', err);
